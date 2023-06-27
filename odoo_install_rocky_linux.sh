@@ -22,7 +22,7 @@ wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtm
 sudo dnf localinstall -y wkhtmltox-0.12.6.1-2.almalinux9.x86_64.rpm
 #--------------------------------------------------------------------------------------------------------------------
 echo Installing Odoo
-sudo useradd -r -m -U -s /bin/bash -d /opt/odoo odoo
+sudo useradd -r -m -U -s /bin/bash -d /home/$USER/odoo odoo
 #su - odoo
 sudo git clone https://www.github.com/odoo/odoo --depth 1 --branch $OE_VERSION /home/$USER/odoo
 #--------------------------------------------------------------------------------------------------------------------
