@@ -47,37 +47,40 @@ touch /var/log/odoo/odoo.log
 chown -R odoo: /var/log/odoo/
 
 #Add following directives in file 'odoo.conf'
-cd /etc
-echo>> odoo.conf "[options]"
-echo>> odoo.conf This is the password that allows database operations:
-echo>> odoo.conf admin_passwd = $OE_SUPERADMIN
-echo>> odoo.conf db_host = False
-echo>> odoo.conf db_port = False
-echo>> odoo.conf db_user = odoo
-echo>> odoo.conf db_password = False
-echo>> odoo.conf xmlrpc_port = 8069
-echo>> odoo.conf logfile = /var/log/odoo/odoo.log
-echo>> odoo.conf logrotate = True
-echo>> odoo.conf addons_path = /opt/odoo/odoo/addons,/opt/odoo/odoo-custom-addons
+cat > /etc/odoo.conf << EOF
+[options]
+This is the password that allows database operations:
+admin_passwd = $OE_SUPERADMIN
+db_host = False
+db_port = False
+db_user = odoo
+db_password = False
+xmlrpc_port = 8069
+logfile = /var/log/odoo/odoo.log
+logrotate = True
+addons_path = /opt/odoo/odoo/addons,/opt/odoo/odoo-custom-addons
+EOF
 
 #Create a Systemd Service Unit
-cd /etc/systemd/system
-echo>> odoo.service "[Unit]"
-echo>> odoo.service Description=Odoo
-echo>> odoo.service Requires=postgresql.service
-echo>> odoo.service After=network.target postgresql.service
+cd /etc/systemd/system/odoo.service
+cat > odoo.service << EOF
+[Unit]
+Description=Odoo
+Requires=postgresql.service
+After=network.target postgresql.service
 
-echo>> odoo.service "[Service]"
-echo>> odoo.service Type=simple
-echo>> odoo.service SyslogIdentifier=odoo
-echo>> odoo.service PermissionsStartOnly = "true"
-echo>> odoo.service User=odoo
-echo>> odoo.service Group=odoo
-echo>> odoo.service ExecStart=/opt/odoo/venv/bin/python3 /opt/odoo/odoo/odoo-bin -c /etc/odoo.conf
-echo>> odoo.service StandardOutput=journal+console
+[Service]
+Type=simple
+SyslogIdentifier=odoo
+PermissionsStartOnly=true
+User=odoo
+Group=odoo
+ExecStart=/opt/odoo/venv/bin/python3 /opt/odoo/odoo/odoo-bin -c /etc/odoo.conf
+StandardOutput=journal+console
 
-echo>> odoo.service "[Install]"
-echo>> odoo.serviceWantedBy=multi-user.target
+[Install]
+WantedBy=multi-user.target
+EOF
 
 #Enable and start Odoo service
 systemctl enable --now odoo.service
