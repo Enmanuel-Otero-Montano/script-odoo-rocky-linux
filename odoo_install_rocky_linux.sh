@@ -11,11 +11,11 @@ sleep 2
 echo Updating software package
 sudo dnf update -y
 echo Installing Odoo Prerequsites
-sudo dnf install -y wget tar gcc git libpq-devel python-devel python3-pip openldap-devel
+sudo dnf install -y wget tar gcc git libpq-devel python-devel openldap-devel
 sudo dnf install -y postgresql-server
 sudo postgresql-setup --initdb --unit postgresql
 sudo systemctl enable --now postgresql
-sudo su - postgres -c "createuser -s $OE_USER" 
+sudo su -c "createuser -s $OE_USER" postgres 
 #--------------------------------------------------------------------------------------------------------------------
 echo Installing WKHTMLTOX
 cd /tmp
@@ -28,7 +28,7 @@ sudo useradd -r -m -U -s /bin/bash -d /opt/odoo odoo
 sudo git clone https://www.github.com/odoo/odoo --depth 1 --branch $OE_VERSION /opt/odoo/odoo
 #--------------------------------------------------------------------------------------------------------------------
 echo Creating and activating a Python virtual environment for Odoo
-cd ~
+cd /opt/odoo
 sudo python -m venv venv
 source venv/bin/activate
 #--------------------------------------------------------------------------------------------------------------------
@@ -48,7 +48,7 @@ sudo touch /var/log/odoo/odoo.log
 sudo chown -R odoo: /var/log/odoo/
 
 #Add following directives in file 'odoo.conf'
-sudo cat > /etc/odoo.conf << EOF
+sudo tee /etc/odoo.conf << EOF
 [options]
 This is the password that allows database operations:
 admin_passwd = $OE_SUPERADMIN
@@ -63,7 +63,7 @@ addons_path = /opt/odoo/odoo/addons,/opt/odoo/custom-addons
 EOF
 
 #Create a Systemd Service Unit
-sudo cat > /etc/systemd/system/odoo.service << EOF
+sudo tee > /etc/systemd/system/odoo.service << EOF
 [Unit]
 Description=Odoo
 Requires=postgresql.service
