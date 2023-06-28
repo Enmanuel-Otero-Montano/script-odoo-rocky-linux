@@ -3,7 +3,7 @@
 # Script for installing Odoo on Rocky Lunix 9.
 # Author: Enmanuel Otero Montano
 #--------------------------------------------------------------------------------------------------------------------
-OE_USER="odoo"
+OE_USER=$USER
 OE_VERSION="16.0"
 OE_SUPERADMIN="admin"
 echo Starting the installation
@@ -25,20 +25,20 @@ sudo dnf localinstall -y wkhtmltox-0.12.6.1-2.almalinux9.x86_64.rpm
 echo Installing Odoo
 sudo useradd -r -m -U -s /bin/bash -d /opt/odoo odoo
 #su - odoo
-sudo git clone https://www.github.com/odoo/odoo --depth 1 --branch $OE_VERSION /opt/odoo/odoo
+sudo git clone https://www.github.com/odoo/odoo --depth 1 --branch $OE_VERSION /home/odoo/odoo
 #--------------------------------------------------------------------------------------------------------------------
 echo Creating and activating a Python virtual environment for Odoo
-cd /opt/odoo
+cd /home/odoo
 sudo python -m venv venv
 source venv/bin/activate
 #--------------------------------------------------------------------------------------------------------------------
 echo Upgrade pip "(Python Package Manager)"
 pip install --upgrade pip
-pip install -r /opt/odoo/odoo/requirements.txt
+pip install -r /home/odoo/odoo/requirements.txt
 deactivate
 #--------------------------------------------------------------------------------------------------------------------
 echo Configuring installation
-sudo mkdir /opt/odoo/custom-addons
+sudo mkdir /home/odoo/custom-addons
 #Exit from odoo user shell
 #exit
 
@@ -48,7 +48,7 @@ sudo touch /var/log/odoo/odoo.log
 sudo chown -R odoo: /var/log/odoo/
 
 #Add following directives in file 'odoo.conf'
-sudo tee /etc/odoo.conf << EOF
+sudo tee /home/odoo/odoo.conf << EOF
 [options]
 This is the password that allows database operations:
 admin_passwd = $OE_SUPERADMIN
@@ -59,7 +59,7 @@ db_password = False
 xmlrpc_port = 8069
 logfile = /var/log/odoo/odoo.log
 logrotate = True
-addons_path = /opt/odoo/odoo/addons,/opt/odoo/custom-addons
+addons_path = /home/odoo/odoo/addons,/home/odoo/custom-addons
 EOF
 
 #Create a Systemd Service Unit
@@ -75,7 +75,7 @@ SyslogIdentifier=odoo
 PermissionsStartOnly=true
 User=odoo
 Group=odoo
-ExecStart=/opt/odoo/venv/bin/python3 /opt/odoo/odoo/odoo-bin -c /etc/odoo.conf
+ExecStart=/home/odoo/venv/bin/python3 /home/odoo/odoo/odoo-bin -c /etc/odoo.conf
 StandardOutput=journal+console
 
 [Install]
